@@ -1,7 +1,7 @@
 package com.example.appresina.model
 
 data class Producto(
-    val id: Int = 0,
+    val id: Int,
     val nombre: String,
     val tipo: String,
     val precio: Double,
@@ -10,11 +10,11 @@ data class Producto(
     val imagenUrl: String = "",
     val fechaCreacion: Long = System.currentTimeMillis(),
     val disponible: Boolean = true,
-    val usuarioId: Int = 1, // ID del creador
+    val usuarioId: Int,
     // Campos calculados (no se persisten en BD)
     val valoracionPromedio: Double = 0.0,
     val cantidadValoraciones: Int = 0,
     val cantidadFavoritos: Int = 0,
     val vistas: Int = 0,
-    val esFavorito: Boolean = false // Si el usuario actual lo tiene en favoritos
+    val esFavorito: Boolean = false
 )

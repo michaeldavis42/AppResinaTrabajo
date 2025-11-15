@@ -54,7 +54,8 @@ fun AppNavigation(
                 tipo = "Epoxi",
                 precio = 15000.0,
                 cantidad = 10,
-                descripcion = "Descripción del producto"
+                descripcion = "Descripción del producto",
+                usuarioId = 1 // Añadido el usuarioId que faltaba
             )
             
             AddEditProductScreen(

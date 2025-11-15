@@ -184,6 +184,7 @@ class ProductViewModel(
             try {
                 if (validarCampos()) {
                     val nuevo = Producto(
+                        id = 0, // Añadido el id que faltaba
                         nombre = _nombreProducto.value,
                         tipo = _tipoResina.value,
                         precio = _precio.value.toDoubleOrNull() ?: 0.0,
