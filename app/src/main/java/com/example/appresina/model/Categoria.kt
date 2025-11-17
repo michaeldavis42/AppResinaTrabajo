@@ -22,10 +22,10 @@ data class Valoracion(
     val id: Int = 0,
     val productoId: Int,
     val usuarioId: Int,
-    val calificacion: Int, // 1-5
+    val calificacion: Int,
     val comentario: String = "",
     val fecha: Long = System.currentTimeMillis(),
-    val usuario: Usuario? = null // Para mostrar información del usuario
+    val usuario: Usuario? = null
 )
 
 data class Favorito(

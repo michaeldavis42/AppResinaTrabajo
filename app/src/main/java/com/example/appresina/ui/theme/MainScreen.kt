@@ -16,12 +16,10 @@ fun MainScreen() {
     var modoEspecial by remember { mutableStateOf(false) }
     var cargando by remember { mutableStateOf(false) }
 
-    // Animación de color al cambiar el estado
     val colorFondo by animateColorAsState(
         targetValue = if (modoEspecial) Color(0xFFB2FF59) else Color(0xFFFF5252)
     )
 
-    // Contenedor principal
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -44,7 +42,6 @@ fun MainScreen() {
                 Text(text = if (modoEspecial) "Desactivar" else "Activar")
             }
 
-            // Loader visible cuando se activa el modo
             if (cargando) {
                 CircularProgressIndicator(
                     color = Color.White,
@@ -53,7 +50,6 @@ fun MainScreen() {
                         .size(40.dp)
                 )
 
-                // Simula un pequeño retraso para la animación
                 LaunchedEffect(Unit) {
                     delay(1000)
                     cargando = false

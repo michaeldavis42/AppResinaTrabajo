@@ -33,7 +33,6 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     
-    // Estados de permisos
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     val storagePermissionState = rememberPermissionState(Manifest.permission.READ_EXTERNAL_STORAGE)
 
@@ -68,7 +67,6 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Título de la sección
             Text(
                 text = "Recursos Nativos",
                 style = MaterialTheme.typography.headlineSmall,
@@ -76,7 +74,6 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Permisos de cámara
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -139,7 +136,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Permisos de almacenamiento
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -202,7 +198,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Información adicional
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -230,7 +225,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Información de la app
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(

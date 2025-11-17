@@ -31,7 +31,6 @@ fun ValidationTextField(
     errorMessage: String? = null,
     isValid: Boolean = false
 ) {
-    // Animación para el estado de validación
     val scale by animateFloatAsState(
         targetValue = if (isError) 1.02f else 1f,
         animationSpec = tween(200)

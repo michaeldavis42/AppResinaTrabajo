@@ -24,7 +24,6 @@ fun RatingBar(
 ) {
     val currentRating = remember(rating) { mutableStateOf(if (rating > 0) rating.toInt() else 0) }
     
-    // Sincronizar con el rating externo cuando cambia
     LaunchedEffect(rating) {
         if (rating > 0 && !enabled) {
             currentRating.value = rating.toInt()

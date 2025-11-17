@@ -144,11 +144,10 @@ class EstadisticaProductoRepository(private val estadisticaDao: EstadisticaProdu
     }
 
     suspend fun calcularScoreTrending(productoId: Int, estadistica: EstadisticaProducto) {
-        // Algoritmo simple de trending score
-        val tiempoTranscurrido = (System.currentTimeMillis() - estadistica.fechaUltimaActualizacion) / (1000 * 60 * 60) // horas
+        val tiempoTranscurrido = (System.currentTimeMillis() - estadistica.fechaUltimaActualizacion) / (1000 * 60 * 60)
         val score = (estadistica.vistas * 0.3 + estadistica.favoritos * 0.4 + 
                     estadistica.ventas * 0.2 + estadistica.descargas * 0.1) / 
-                    (1.0 + tiempoTranscurrido / 24.0) // Decaimiento por tiempo
+                    (1.0 + tiempoTranscurrido / 24.0)
         estadisticaDao.actualizarScoreTrending(productoId, score)
     }
 }
@@ -173,7 +172,6 @@ class UsuarioRepository(private val usuarioDao: UsuarioDao) {
     }
 }
 
-// Extensiones para convertir Entity a Model
 private fun CategoriaEntity.toCategoria(): Categoria {
     return Categoria(
         id = this.id,

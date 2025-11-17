@@ -9,8 +9,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,17 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.appresina.model.Producto
-import com.example.appresina.ui.components.ValidationTextField
-import com.example.appresina.ui.components.ImagePicker
-import com.example.appresina.viewmodel.ProductViewModel
-import com.example.appresina.viewmodel.ProductViewModelFactory
 import com.example.appresina.data.*
-import androidx.compose.ui.platform.LocalContext
+import com.example.appresina.model.Producto
+import com.example.appresina.ui.components.ImagePicker
+import com.example.appresina.ui.components.ValidationTextField
+import com.example.appresina.viewmodel.ProductoViewModel
+import com.example.appresina.viewmodel.ProductoViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,56 +34,38 @@ fun AddEditProductScreen(
     producto: Producto? = null,
     onNavigateBack: () -> Unit,
     onProductSaved: () -> Unit,
-    viewModel: ProductViewModel = viewModel(
-        factory = run {
-            val context = LocalContext.current
-            val db = AppDatabase.getDatabase(context)
-            val valoracionRepository = ValoracionRepository(
-                db.valoracionDao(),
-                db.usuarioDao()
-            )
-            val favoritoRepository = FavoritoRepository(
-                db.favoritoDao(),
-                db.estadisticaProductoDao()
-            )
-            val estadisticaRepository = EstadisticaProductoRepository(db.estadisticaProductoDao())
-            val productoRepository = ProductoRepository(
-                db.productoDao(),
-                valoracionRepository,
-                favoritoRepository,
-                estadisticaRepository
-            )
-            ProductViewModelFactory(
-                productoRepository,
-                valoracionRepository,
-                favoritoRepository
-            )
-        }
+    viewModel: ProductoViewModel = viewModel(
+        factory = ProductoViewModelFactory(
+            ProductoRepository(
+                AppDatabase.getDatabase(LocalContext.current).productoDao(),
+                ValoracionRepository(AppDatabase.getDatabase(LocalContext.current).valoracionDao(), AppDatabase.getDatabase(LocalContext.current).usuarioDao()),
+                FavoritoRepository(AppDatabase.getDatabase(LocalContext.current).favoritoDao(), AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao()),
+                EstadisticaProductoRepository(AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao())
+            ),
+            ValoracionRepository(AppDatabase.getDatabase(LocalContext.current).valoracionDao(), AppDatabase.getDatabase(LocalContext.current).usuarioDao()),
+            FavoritoRepository(AppDatabase.getDatabase(LocalContext.current).favoritoDao(), AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao())
+        )
     )
 ) {
-    val nombre by viewModel.nombreProducto.collectAsState()
-    val tipo by viewModel.tipoResina.collectAsState()
+    val nombre by viewModel.nombre.collectAsState()
+    val tipo by viewModel.tipo.collectAsState()
     val precio by viewModel.precio.collectAsState()
     val cantidad by viewModel.cantidad.collectAsState()
     val descripcion by viewModel.descripcion.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Estados de validación
     var nombreError by remember { mutableStateOf<String?>(null) }
     var tipoError by remember { mutableStateOf<String?>(null) }
     var precioError by remember { mutableStateOf<String?>(null) }
     var cantidadError by remember { mutableStateOf<String?>(null) }
     var descripcionError by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
 
-    var showImagePicker by remember { mutableStateOf(false) }
-
-    // Animación del botón
     val buttonScale by animateFloatAsState(
         targetValue = if (isLoading) 0.95f else 1f,
         animationSpec = tween(200)
     )
 
-    // Cargar datos del producto si estamos editando
     LaunchedEffect(producto) {
         producto?.let {
             viewModel.actualizarNombre(it.nombre)
@@ -127,7 +107,6 @@ fun AddEditProductScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sección de imagen
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -156,14 +135,11 @@ fun AddEditProductScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     ImagePicker(
                         onImageSelected = { uri ->
-                            // Aquí manejarías la URI de la imagen seleccionada
-                            // Por ahora solo cerramos el diálogo
                         }
                     )
                 }
             }
 
-            // Formulario
             ValidationTextField(
                 value = nombre,
                 onValueChange = { 
@@ -177,32 +153,30 @@ fun AddEditProductScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Dropdown para tipo de resina
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = { }
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
                     value = tipo,
-                    onValueChange = { 
-                        viewModel.actualizarTipo(it)
-                        tipoError = null
-                    },
+                    onValueChange = { },
                     label = { Text("Tipo de Resina") },
                     placeholder = { Text("Selecciona el tipo") },
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(),
                     isError = tipoError != null,
-                    supportingText = if (tipoError != null) {
-                        { Text(tipoError!!, color = MaterialTheme.colorScheme.error) }
-                    } else null
+                    supportingText = {
+                        if (tipoError != null) {
+                            Text(tipoError!!, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
                 )
                 ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { }
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
                 ) {
                     listOf("Epoxi", "Poliuretano", "Acrílica", "UV", "Otros").forEach { tipoResina ->
                         DropdownMenuItem(
@@ -210,6 +184,7 @@ fun AddEditProductScreen(
                             onClick = { 
                                 viewModel.actualizarTipo(tipoResina)
                                 tipoError = null
+                                expanded = false
                             }
                         )
                     }
@@ -265,10 +240,8 @@ fun AddEditProductScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de guardar
             Button(
                 onClick = {
-                    // Validar campos
                     var hasErrors = false
                     
                     if (nombre.isBlank()) {

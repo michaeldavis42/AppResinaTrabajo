@@ -33,10 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        // Migración de versión 2 a 3
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Crear tabla de categorías
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS categorias (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -47,7 +45,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Crear tabla de usuarios
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS usuarios (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -60,7 +57,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Crear tabla de valoraciones
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS valoraciones (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -72,7 +68,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Crear tabla de favoritos
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS favoritos (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -82,7 +77,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Crear tabla de estadísticas
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS estadisticas_producto (
                         productoId INTEGER PRIMARY KEY NOT NULL,
@@ -95,7 +89,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Crear tabla de relación producto-categoría
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS producto_categoria (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -104,7 +97,6 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """.trimIndent())
 
-                // Insertar categorías iniciales
                 database.execSQL("""
                     INSERT INTO categorias (nombre, descripcion, icono, padreId) VALUES
                     ('Arte', 'Productos relacionados con arte y decoración', '🎨', NULL),
@@ -118,13 +110,11 @@ abstract class AppDatabase : RoomDatabase() {
                     ('Variado', 'Otras categorías', '👽', NULL)
                 """.trimIndent())
 
-                // Crear usuario por defecto
                 database.execSQL("""
                     INSERT INTO usuarios (nombre, email, avatarUrl, biografia, fechaRegistro, esCreador) VALUES
                     ('Usuario Invitado', 'invitado@appresina.com', '', 'Usuario invitado', ${System.currentTimeMillis()}, 0)
                 """.trimIndent())
 
-                // Inicializar estadísticas para productos existentes
                 database.execSQL("""
                     INSERT INTO estadisticas_producto (productoId, vistas, descargas, ventas, favoritos, scoreTrending, fechaUltimaActualizacion)
                     SELECT id, 0, 0, 0, 0, 0.0, ${System.currentTimeMillis()}
@@ -142,7 +132,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "appresina_database"
                 )
                 .addMigrations(MIGRATION_2_3)
-                .fallbackToDestructiveMigration() // Solo para desarrollo
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

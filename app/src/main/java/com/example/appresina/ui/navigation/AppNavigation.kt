@@ -8,7 +8,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.appresina.model.Producto
 import com.example.appresina.ui.screens.HomeScreen
 import com.example.appresina.ui.screens.AddEditProductScreen
-import com.example.appresina.ui.screens.ProductDetailScreen
 import com.example.appresina.ui.screens.SettingsScreen
 
 @Composable
@@ -47,7 +46,6 @@ fun AppNavigation(
         composable(Screen.EditProduct.route) { backStackEntry ->
             val productoId = backStackEntry.arguments?.getString("productoId")?.toIntOrNull()
             
-            // TODO: Obtener producto por ID desde el ViewModel
             val producto = Producto(
                 id = productoId ?: 0,
                 nombre = "Producto de ejemplo",
@@ -55,7 +53,7 @@ fun AppNavigation(
                 precio = 15000.0,
                 cantidad = 10,
                 descripcion = "Descripción del producto",
-                usuarioId = 1 // Añadido el usuarioId que faltaba
+                usuarioId = 1
             )
             
             AddEditProductScreen(
@@ -68,20 +66,7 @@ fun AppNavigation(
                 }
             )
         }
-        
-        composable("${Screen.ProductDetail.route}/{productoId}") { backStackEntry ->
-            val productoId = backStackEntry.arguments?.getString("productoId")?.toIntOrNull() ?: 0
-            
-            ProductDetailScreen(
-                productoId = productoId,
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onEditProduct = { producto ->
-                    navController.navigate("${Screen.EditProduct.route}/${producto.id}")
-                }
-            )
-        }
+
         
         composable(Screen.Settings.route) {
             SettingsScreen(
@@ -93,9 +78,6 @@ fun AppNavigation(
     }
 }
 
-/**
- * Definición de las pantallas de la aplicación
- */
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object AddProduct : Screen("add_product")

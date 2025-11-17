@@ -9,7 +9,7 @@ data class CategoriaEntity(
     val nombre: String,
     val descripcion: String = "",
     val icono: String = "",
-    val padreId: Int? = null // Para subcategorías
+    val padreId: Int? = null
 )
 
 @Entity(tableName = "usuarios")
@@ -28,7 +28,7 @@ data class ValoracionEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val productoId: Int,
     val usuarioId: Int,
-    val calificacion: Int, // 1-5
+    val calificacion: Int,
     val comentario: String = "",
     val fecha: Long = System.currentTimeMillis()
 )
@@ -52,7 +52,7 @@ data class EstadisticaProductoEntity(
     val fechaUltimaActualizacion: Long = System.currentTimeMillis()
 )
 
-// Tablas de relación muchos-a-muchos
+
 @Entity(tableName = "producto_categoria")
 data class ProductoCategoriaEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,

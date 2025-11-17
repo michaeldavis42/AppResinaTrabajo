@@ -33,20 +33,16 @@ fun ImagePicker(
     val context = LocalContext.current
     var showImageSourceDialog by remember { mutableStateOf(false) }
 
-    // Permisos para cámara
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
-    // Launcher para cámara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
         if (bitmap != null) {
-            // Aquí podrías guardar la imagen y obtener la URI
-            onImageSelected(null) // Por ahora pasamos null
+            onImageSelected(null)
         }
     }
 
-    // Launcher para galería
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -57,7 +53,6 @@ fun ImagePicker(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Botón para seleccionar imagen
         Button(
             onClick = { showImageSourceDialog = true },
             modifier = Modifier.fillMaxWidth(),
@@ -78,7 +73,6 @@ fun ImagePicker(
             )
         }
 
-        // Diálogo para seleccionar fuente de imagen
         if (showImageSourceDialog) {
             AlertDialog(
                 onDismissRequest = { showImageSourceDialog = false },
@@ -100,7 +94,6 @@ fun ImagePicker(
                                     cameraLauncher.launch(null)
                                 }
                                 cameraPermissionState.status.shouldShowRationale -> {
-                                    //explicación de por qué necesitamos el permiso
                                 }
                                 else -> {
                                     cameraPermissionState.launchPermissionRequest()
@@ -125,7 +118,7 @@ fun ImagePicker(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Photo, // This line was causing the error
+                            imageVector = Icons.Default.Photo,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp)
                         )

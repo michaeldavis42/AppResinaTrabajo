@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,8 +21,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appresina.model.Producto
 import com.example.appresina.ui.components.ProductoCard
 import com.example.appresina.ui.components.SearchBar
-import com.example.appresina.viewmodel.ProductViewModel
-import com.example.appresina.viewmodel.ProductViewModelFactory
+import com.example.appresina.viewmodel.ProductoViewModel
+import com.example.appresina.viewmodel.ProductoViewModelFactory
 import com.example.appresina.viewmodel.TipoFiltro
 import com.example.appresina.data.*
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +33,7 @@ fun HomeScreen(
     onNavigateToAddProduct: () -> Unit,
     onNavigateToProductDetail: (Producto) -> Unit,
     onNavigateToSettings: () -> Unit,
-    viewModel: ProductViewModel = viewModel(
+    viewModel: ProductoViewModel = viewModel(
         factory = run {
             val context = LocalContext.current
             val db = AppDatabase.getDatabase(context)
@@ -53,7 +52,7 @@ fun HomeScreen(
                 favoritoRepository,
                 estadisticaRepository
             )
-            ProductViewModelFactory(
+            ProductoViewModelFactory(
                 productoRepository,
                 valoracionRepository,
                 favoritoRepository
@@ -70,7 +69,10 @@ fun HomeScreen(
     var mostrarFiltros by remember { mutableStateOf(false) }
     var mostrarSeguridad by remember { mutableStateOf(SeguridadDialogState.debeMostrarse()) }
 
-    // Animación de color de fondo
+    LaunchedEffect(Unit) {
+        viewModel.fetchProductos()
+    }
+
     val colorFondo by animateColorAsState(
         targetValue = if (tipoFiltro != "Todos") Color(0xFFE8F5E8) else Color(0xFFF5F5F5),
         animationSpec = tween(1000)
@@ -84,7 +86,6 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // App Bar personalizada
             TopAppBar(
                 title = {
                     Text(
@@ -118,7 +119,6 @@ fun HomeScreen(
                 )
             )
 
-            // Barra de búsqueda
             SearchBar(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 onSearchChanged = { texto ->
@@ -126,18 +126,16 @@ fun HomeScreen(
                 }
             )
 
-            // Filtros avanzados
             if (mostrarFiltros) {
                 AdvancedFilters(
                     filtroActual = filtroActual,
-                    tipoFiltro = tipoFiltro,
+                    tipoFiltro = tipoFiltro ?: "Todos",
                     onFiltroSelected = { filtro, tipo ->
                         viewModel.aplicarFiltro(filtro, tipo)
                     }
                 )
             }
 
-            // Lista de productos
             if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -165,16 +163,13 @@ fun HomeScreen(
             }
         }
 
-        // Mostrar mensaje de error
         errorMessage?.let { error ->
             LaunchedEffect(error) {
-                // Aquí podrías mostrar un SnackBar
                 viewModel.limpiarError()
             }
         }
     }
 
-    // Diálogo de seguridad
     if (mostrarSeguridad) {
         SeguridadDialog(
             onDismiss = { 

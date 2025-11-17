@@ -10,7 +10,7 @@ class ProductoRepository(
     private val valoracionRepository: ValoracionRepository,
     private val favoritoRepository: FavoritoRepository,
     private val estadisticaRepository: EstadisticaProductoRepository,
-    private val usuarioActualId: Int = 1 // Usuario por defecto
+    private val usuarioActualId: Int = 1
 ) {
 
     fun obtenerProductos(): Flow<List<Producto>> {
@@ -87,7 +87,6 @@ class ProductoRepository(
 
     suspend fun insertarProducto(producto: Producto): Long {
         val id = productoDao.insertarProducto(producto.toEntity())
-        // Inicializar estadísticas para el nuevo producto
         estadisticaRepository.inicializarEstadistica(id.toInt())
         return id
     }
@@ -131,9 +130,6 @@ class ProductoRepository(
     }
 }
 
-/**
- * Extensión para convertir ProductoEntity a Producto
- */
 private fun ProductoEntity.toProducto(): Producto {
     return Producto(
         id = this.id,
@@ -145,13 +141,10 @@ private fun ProductoEntity.toProducto(): Producto {
         imagenUrl = this.imagenUrl,
         fechaCreacion = this.fechaCreacion,
         disponible = this.disponible,
-        usuarioId = 1 // Por defecto, se puede obtener del contexto
+        usuarioId = 1
     )
 }
 
-/**
- * Extensión para convertir Producto a ProductoEntity
- */
 private fun Producto.toEntity(): ProductoEntity {
     return ProductoEntity(
         id = this.id,

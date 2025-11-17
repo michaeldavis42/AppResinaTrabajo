@@ -39,7 +39,6 @@ fun ProductoCard(
 ) {
     var isPressed by remember { mutableStateOf(false) }
     
-    // Animaciones
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec = tween(100)
@@ -86,7 +85,6 @@ fun ProductoCard(
                     
                     Spacer(modifier = Modifier.height(4.dp))
                     
-                    // Rating y estadísticas
                     if (producto.valoracionPromedio > 0 || producto.vistas > 0) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -129,7 +127,6 @@ fun ProductoCard(
                     )
                 }
                 
-                // Acciones
                 Row {
                     onFavoriteToggle?.let {
                         IconButton(onClick = it) {
@@ -216,7 +213,6 @@ fun ProductoCard(
                 }
             }
             
-            // Estado de disponibilidad
             if (!producto.disponible) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
