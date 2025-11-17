@@ -9,6 +9,7 @@ android {
     namespace = "com.example.appresina"
     compileSdk = 36
 
+
     defaultConfig {
         applicationId = "com.example.appresina"
         minSdk = 30
@@ -39,6 +40,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }
 
@@ -94,5 +99,20 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Also update other Retrofit libraries you are using
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Kotest para testing de unidades
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+
+    // JUnit 5 (necesario para el runner de Kotest)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+    // MockK para crear mocks en los tests
+    testImplementation("io.mockk:mockk:1.13.10")
+
+    // Compose UI Test (para tests de instrumentación)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.2")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
+
 
 }
