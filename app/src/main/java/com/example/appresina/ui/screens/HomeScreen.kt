@@ -1,7 +1,6 @@
 package com.example.appresina.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
 import com.example.appresina.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +35,7 @@ fun HomeScreen(
     onNavigateToAddProduct: () -> Unit,
     onNavigateToProductDetail: (Producto) -> Unit,
     onNavigateToSettings: () -> Unit,
+    onLogout: () -> Unit,
     viewModel: ProductoViewModel = viewModel(
         factory = run {
             val context = LocalContext.current
@@ -74,19 +72,18 @@ fun HomeScreen(
     var mostrarFiltros by remember { mutableStateOf(false) }
     var mostrarSeguridad by remember { mutableStateOf(SeguridadDialogState.debeMostrarse()) }
 
+    BackHandler {
+        onLogout()
+    }
+
     LaunchedEffect(Unit) {
         viewModel.fetchProductos()
     }
 
-    val colorFondo by animateColorAsState(
-        targetValue = if (tipoFiltro != "Todos") Color(0xFFE8F5E8) else Color(0xFFF5F5F5),
-        animationSpec = tween(1000)
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorFondo)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -107,8 +104,7 @@ fun HomeScreen(
                         )
                         Text(
                             text = "AppResina",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 },
@@ -116,27 +112,26 @@ fun HomeScreen(
                     IconButton(onClick = { mostrarFiltros = !mostrarFiltros }) {
                         Icon(
                             imageVector = Icons.Default.Menu,
-                            contentDescription = "Filtros",
-                            tint = Color(0xFFFFFFFF)
+                            contentDescription = "Filtros"
                         )
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Configuración",
-                            tint = Color(0xFFFFFFFF)
+                            contentDescription = "Configuración"
                         )
                     }
                     IconButton(onClick = onNavigateToAddProduct) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar Producto",
-                            tint = Color(0xFFFFFFFF)
+                            contentDescription = "Agregar Producto"
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
 
