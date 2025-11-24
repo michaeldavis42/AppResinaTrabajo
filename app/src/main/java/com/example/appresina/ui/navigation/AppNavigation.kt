@@ -18,6 +18,7 @@ import com.example.appresina.model.Producto
 import com.example.appresina.ui.screens.AddEditProductScreen
 import com.example.appresina.ui.screens.HomeScreen
 import com.example.appresina.ui.screens.LoginScreen
+import com.example.appresina.ui.screens.ProductDetailScreen
 import com.example.appresina.ui.screens.RegisterScreen
 import com.example.appresina.ui.screens.SettingsScreen
 import com.example.appresina.viewmodel.AuthViewModel
@@ -73,7 +74,9 @@ fun AppNavigation(
                 onNavigateToAddProduct = {
                     navController.navigate(Screen.AddProduct.route)
                 },
-                onNavigateToProductDetail = { /* No-op */ },
+                onNavigateToProductDetail = { producto ->
+                    navController.navigate("${Screen.ProductDetail.route}/${producto.id}")
+                },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
                 },
@@ -115,6 +118,19 @@ fun AppNavigation(
                 },
                 onProductSaved = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable("${Screen.ProductDetail.route}/{productoId}") { backStackEntry ->
+            val productoId = backStackEntry.arguments?.getString("productoId")?.toIntOrNull() ?: 0
+            ProductDetailScreen(
+                productoId = productoId,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToEdit = { producto ->
+                    navController.navigate("edit_product/${producto.id}")
                 }
             )
         }
