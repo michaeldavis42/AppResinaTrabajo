@@ -165,6 +165,10 @@ class UsuarioRepository(private val usuarioDao: UsuarioDao) {
         return usuarioDao.insertarUsuario(usuario.toEntity())
     }
 
+    suspend fun actualizarUsuario(usuario: Usuario) {
+        usuarioDao.actualizarUsuario(usuario.toEntity())
+    }
+
     fun obtenerCreadores(): Flow<List<Usuario>> {
         return usuarioDao.obtenerCreadores().map { entities ->
             entities.map { it.toUsuario() }
@@ -197,6 +201,7 @@ private fun UsuarioEntity.toUsuario(): Usuario {
         id = this.id,
         nombre = this.nombre,
         email = this.email,
+        password_hash = this.password_hash,
         avatarUrl = this.avatarUrl,
         biografia = this.biografia,
         fechaRegistro = this.fechaRegistro,
@@ -209,6 +214,7 @@ private fun Usuario.toEntity(): UsuarioEntity {
         id = this.id,
         nombre = this.nombre,
         email = this.email,
+        password_hash = this.password_hash,
         avatarUrl = this.avatarUrl,
         biografia = this.biografia,
         fechaRegistro = this.fechaRegistro,
@@ -259,4 +265,3 @@ private fun EstadisticaProductoEntity.toEstadistica(): EstadisticaProducto {
         fechaUltimaActualizacion = this.fechaUltimaActualizacion
     )
 }
-

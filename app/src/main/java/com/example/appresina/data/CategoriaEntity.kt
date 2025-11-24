@@ -17,6 +17,7 @@ data class UsuarioEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
     val email: String,
+    val password_hash: String,
     val avatarUrl: String = "",
     val biografia: String = "",
     val fechaRegistro: Long = System.currentTimeMillis(),

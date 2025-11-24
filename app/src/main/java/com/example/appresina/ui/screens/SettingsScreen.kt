@@ -3,6 +3,7 @@ package com.example.appresina.ui.screens
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,7 +35,13 @@ fun SettingsScreen(
     val context = LocalContext.current
     
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    val storagePermissionState = rememberPermissionState(Manifest.permission.READ_EXTERNAL_STORAGE)
+    // Android 13+ usa READ_MEDIA_IMAGES, versiones anteriores usan READ_EXTERNAL_STORAGE
+    val storagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+    val storagePermissionState = rememberPermissionState(storagePermission)
 
     Scaffold(
         topBar = {

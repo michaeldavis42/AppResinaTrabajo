@@ -1,6 +1,7 @@
 package com.example.appresina.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,12 +33,12 @@ fun SeguridadDialog(onDismiss: () -> Unit) {
     // Animaciones
     val scale by animateFloatAsState(
         targetValue = if (isAnimating) 1f else 0.8f,
-        animationSpec = tween(500)
+        animationSpec = snap()
     )
     
     val alpha by animateFloatAsState(
         targetValue = if (isAnimating) 1f else 0f,
-        animationSpec = tween(500)
+        animationSpec = snap()
     )
 
     LaunchedEffect(Unit) {
@@ -58,7 +59,7 @@ fun SeguridadDialog(onDismiss: () -> Unit) {
                 .alpha(alpha),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF8F9FA)
+                containerColor = Color(0xFF000000)
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
@@ -93,7 +94,7 @@ fun SeguridadDialog(onDismiss: () -> Unit) {
                     text = "Medidas de Seguridad",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF424242),
+                    color = Color(0xFFFFFFFF),
                     textAlign = TextAlign.Center
                 )
                 
@@ -125,7 +126,7 @@ fun SeguridadDialog(onDismiss: () -> Unit) {
                         Text(
                             text = recomendacion,
                             fontSize = 14.sp,
-                            color = Color(0xFF424242),
+                            color = Color(0xFFFFFFFF),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -137,14 +138,14 @@ fun SeguridadDialog(onDismiss: () -> Unit) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF3E0)
+                        containerColor = Color(0xFF1A1A1A)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = "La resina puede causar irritación en la piel y problemas respiratorios. Siempre sigue estas medidas de seguridad.",
                         fontSize = 13.sp,
-                        color = Color(0xFFE65100),
+                        color = Color(0xFFFF9800),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(16.dp)
                     )

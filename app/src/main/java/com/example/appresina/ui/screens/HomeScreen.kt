@@ -26,6 +26,11 @@ import com.example.appresina.viewmodel.ProductoViewModelFactory
 import com.example.appresina.viewmodel.TipoFiltro
 import com.example.appresina.data.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
+import com.example.appresina.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,29 +93,45 @@ fun HomeScreen(
         ) {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "AppResina",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo_resina),
+                            contentDescription = "AppResina Logo",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(end = 8.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        Text(
+                            text = "AppResina",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 },
                 actions = {
                     IconButton(onClick = { mostrarFiltros = !mostrarFiltros }) {
                         Icon(
                             imageVector = Icons.Default.Menu,
-                            contentDescription = "Filtros"
+                            contentDescription = "Filtros",
+                            tint = Color(0xFFFFFFFF)
                         )
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Configuración"
+                            contentDescription = "Configuración",
+                            tint = Color(0xFFFFFFFF)
                         )
                     }
                     IconButton(onClick = onNavigateToAddProduct) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar Producto"
+                            contentDescription = "Agregar Producto",
+                            tint = Color(0xFFFFFFFF)
                         )
                     }
                 },

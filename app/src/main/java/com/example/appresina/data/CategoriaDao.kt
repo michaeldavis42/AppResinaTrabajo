@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -28,6 +29,9 @@ interface CategoriaDao {
 interface UsuarioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarUsuario(usuario: UsuarioEntity): Long
+
+    @Update
+    suspend fun actualizarUsuario(usuario: UsuarioEntity)
 
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtenerUsuarioPorId(id: Int): UsuarioEntity?
@@ -134,4 +138,3 @@ interface ProductoCategoriaDao {
     @Query("DELETE FROM producto_categoria WHERE productoId = :productoId")
     suspend fun eliminarCategoriasPorProducto(productoId: Int)
 }
-

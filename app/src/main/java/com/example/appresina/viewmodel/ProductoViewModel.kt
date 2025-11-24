@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 enum class TipoFiltro {
@@ -51,6 +53,8 @@ open class ProductoViewModel(
 
     private val _tipoFiltro = MutableStateFlow<String?>("Todos")
     val tipoFiltro: StateFlow<String?> = _tipoFiltro.asStateFlow()
+    
+    private var productosInicializados = false
 
     val listaProductos: StateFlow<List<Producto>> = combine(
         _productos, _busqueda, _filtroActual, _tipoFiltro
@@ -117,13 +121,196 @@ open class ProductoViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                // Suscribirse al flujo y verificar si necesita inicializar productos de ejemplo
                 productoRepository.obtenerProductos().collect { lista ->
                     _productos.value = lista
+                    
+                    // Si no hay productos y aún no se han inicializado, agregar productos de ejemplo
+                    if (lista.isEmpty() && !productosInicializados) {
+                        inicializarProductosEjemplo()
+                        productosInicializados = true
+                    }
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Error al cargar productos: ${e.message}"
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    private suspend fun inicializarProductosEjemplo() {
+        val productosIniciales = listOf(
+            Producto(
+                id = 0,
+                nombre = "Resina Epoxi Premium 1L",
+                tipo = "Epoxi",
+                precio = 25000.0,
+                cantidad = 15,
+                descripcion = "Resina epoxi de alta calidad, perfecta para proyectos artísticos y decorativos. Transparente y de secado rápido. Ideal para mesas, encimeras y proyectos de arte.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV Transparente 500ml",
+                tipo = "UV",
+                precio = 18000.0,
+                cantidad = 20,
+                descripcion = "Resina UV que se cura con luz ultravioleta. Ideal para joyería y pequeños proyectos. Secado instantáneo bajo luz UV.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Acrílica Decorativa",
+                tipo = "Acrílica",
+                precio = 15000.0,
+                cantidad = 25,
+                descripcion = "Resina acrílica para acabados decorativos. Disponible en varios colores. Perfecta para manualidades y decoración.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Poliuretano Industrial",
+                tipo = "Poliuretano",
+                precio = 35000.0,
+                cantidad = 10,
+                descripcion = "Resina poliuretano resistente para uso industrial y proyectos de gran escala. Alta resistencia y durabilidad.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Kit Iniciación Resina Epoxi",
+                tipo = "Epoxi",
+                precio = 45000.0,
+                cantidad = 8,
+                descripcion = "Kit completo con resina epoxi, endurecedor, colorantes y herramientas básicas para empezar. Incluye guía de uso.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV Color Amarillo",
+                tipo = "UV",
+                precio = 20000.0,
+                cantidad = 12,
+                descripcion = "Resina UV con pigmento amarillo incorporado. Perfecta para proyectos vibrantes y llamativos.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Epoxi Cristal 2L",
+                tipo = "Epoxi",
+                precio = 48000.0,
+                cantidad = 6,
+                descripcion = "Resina epoxi de máxima transparencia. Perfecta para proyectos que requieren claridad óptica excepcional.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV Color Azul Marino",
+                tipo = "UV",
+                precio = 22000.0,
+                cantidad = 14,
+                descripcion = "Resina UV con pigmento azul marino. Ideal para proyectos acuáticos y decorativos modernos.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Epoxi para Ríos 1.5L",
+                tipo = "Epoxi",
+                precio = 38000.0,
+                cantidad = 9,
+                descripcion = "Resina epoxi especializada para crear efectos de río en mesas de madera. Alta viscosidad y excelente acabado.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV Transparente 1L",
+                tipo = "UV",
+                precio = 32000.0,
+                cantidad = 11,
+                descripcion = "Resina UV transparente en presentación de 1 litro. Ideal para proyectos grandes que requieren curación rápida.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Acrílica Color Rojo",
+                tipo = "Acrílica",
+                precio = 17000.0,
+                cantidad = 18,
+                descripcion = "Resina acrílica con pigmento rojo intenso. Perfecta para proyectos decorativos y artísticos con color vibrante.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Epoxi con Pigmentos Metálicos",
+                tipo = "Epoxi",
+                precio = 42000.0,
+                cantidad = 7,
+                descripcion = "Resina epoxi con efecto metálico. Incluye pigmentos dorados y plateados para acabados de lujo.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV para Joyería 250ml",
+                tipo = "UV",
+                precio = 12000.0,
+                cantidad = 22,
+                descripcion = "Resina UV especialmente formulada para joyería. Viscosidad baja, perfecta para trabajos delicados.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Poliuretano Transparente",
+                tipo = "Poliuretano",
+                precio = 40000.0,
+                cantidad = 5,
+                descripcion = "Resina poliuretano de alta transparencia. Resistente a rayones y desgaste. Ideal para superficies de alto tráfico.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Kit Avanzado Resina Epoxi",
+                tipo = "Epoxi",
+                precio = 65000.0,
+                cantidad = 4,
+                descripcion = "Kit completo para proyectos avanzados. Incluye resina, endurecedor, múltiples colorantes, herramientas profesionales y guía avanzada.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina UV Color Verde Esmeralda",
+                tipo = "UV",
+                precio = 21000.0,
+                cantidad = 13,
+                descripcion = "Resina UV con pigmento verde esmeralda. Perfecta para proyectos naturales y ecológicos.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Epoxi Resistente al Calor",
+                tipo = "Epoxi",
+                precio = 55000.0,
+                cantidad = 6,
+                descripcion = "Resina epoxi especial que resiste altas temperaturas. Ideal para encimeras de cocina y superficies expuestas al calor.",
+                usuarioId = 1
+            ),
+            Producto(
+                id = 0,
+                nombre = "Resina Acrílica con Brillo",
+                tipo = "Acrílica",
+                precio = 19000.0,
+                cantidad = 16,
+                descripcion = "Resina acrílica con efecto brillante incorporado. No requiere acabado adicional, brillo permanente.",
+                usuarioId = 1
+            )
+        )
+        
+        // Insertar todos los productos en la base de datos
+        productosIniciales.forEach { producto ->
+            try {
+                productoRepository.insertarProducto(producto)
+            } catch (e: Exception) {
+                // Ignorar errores al insertar productos
             }
         }
     }

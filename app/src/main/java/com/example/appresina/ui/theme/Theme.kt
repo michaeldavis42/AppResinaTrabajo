@@ -16,12 +16,12 @@ private val DarkColorScheme = darkColorScheme(
     primary = ResinaSecondary,
     secondary = ResinaSecondaryVariant,
     tertiary = ResinaWarning,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
+    background = Color(0xFF000000),
+    surface = Color(0xFF000000),
     onPrimary = ResinaOnPrimary,
     onSecondary = ResinaOnSecondary,
-    onBackground = Color(0xFFE1E1E1),
-    onSurface = Color(0xFFE1E1E1),
+    onBackground = Color(0xFFFFFFFF),
+    onSurface = Color(0xFFFFFFFF),
     error = ResinaError
 )
 
@@ -29,14 +29,14 @@ private val LightColorScheme = lightColorScheme(
     primary = ResinaPrimary,
     secondary = ResinaSecondary,
     tertiary = ResinaWarning,
-    background = ResinaBackground,
-    surface = ResinaSurface,
-    surfaceVariant = ResinaSurfaceVariant,
+    background = Color(0xFF000000),
+    surface = Color(0xFF000000),
+    surfaceVariant = Color(0xFF1A1A1A),
     onPrimary = ResinaOnPrimary,
     onSecondary = ResinaOnSecondary,
-    onBackground = ResinaOnBackground,
-    onSurface = ResinaOnSurface,
-    onSurfaceVariant = ResinaOnBackground,
+    onBackground = Color(0xFFFFFFFF),
+    onSurface = Color(0xFFFFFFFF),
+    onSurfaceVariant = Color(0xFFFFFFFF),
     error = ResinaError
 )
 
@@ -44,7 +44,7 @@ private val LightColorScheme = lightColorScheme(
 fun AppResinaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

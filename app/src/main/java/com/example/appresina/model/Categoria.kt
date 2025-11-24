@@ -8,16 +8,6 @@ data class Categoria(
     val padreId: Int? = null
 )
 
-data class Usuario(
-    val id: Int = 0,
-    val nombre: String,
-    val email: String,
-    val avatarUrl: String = "",
-    val biografia: String = "",
-    val fechaRegistro: Long = System.currentTimeMillis(),
-    val esCreador: Boolean = false
-)
-
 data class Valoracion(
     val id: Int = 0,
     val productoId: Int,
@@ -44,4 +34,3 @@ data class EstadisticaProducto(
     val scoreTrending: Double = 0.0,
     val fechaUltimaActualizacion: Long = System.currentTimeMillis()
 )
-

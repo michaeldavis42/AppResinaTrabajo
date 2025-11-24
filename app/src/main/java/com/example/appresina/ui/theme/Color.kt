@@ -8,8 +8,8 @@ val ResinaSecondary = Color(0xFF4CAF50)
 val ResinaSecondaryVariant = Color(0xFF388E3C)
 
 val ResinaBackground = Color(0xFFF8F9FA)
-val ResinaSurface = Color(0xFFFFFFFF)
-val ResinaSurfaceVariant = Color(0xFFE8F5E8)
+val ResinaSurface = Color(0xFF1C1B1F)
+val ResinaSurfaceVariant = Color(0xFF1C1B1F)
 
 val ResinaOnPrimary = Color(0xFFFFFFFF)
 val ResinaOnSecondary = Color(0xFFFFFFFF)
