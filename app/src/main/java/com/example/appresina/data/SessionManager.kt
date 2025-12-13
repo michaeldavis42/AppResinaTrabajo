@@ -20,6 +20,7 @@ class SessionManager(private val context: Context) {
         private val USER_ID = intPreferencesKey("user_id")
         private val USER_EMAIL = stringPreferencesKey("user_email")
         private val USER_NAME = stringPreferencesKey("user_name")
+        private val IS_CREADOR = booleanPreferencesKey("is_creador")
     }
 
     // Flujo reactivo que indica si el usuario está autenticado
@@ -42,13 +43,19 @@ class SessionManager(private val context: Context) {
         preferences[USER_NAME]
     }
 
+    // Flujo reactivo que indica si el usuario es creador
+    val isCreador: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[IS_CREADOR] ?: false
+    }
+
     // Inicia sesión guardando los datos del usuario
-    suspend fun login(userId: Int, email: String, userName: String) {
+    suspend fun login(userId: Int, email: String, userName: String, isCreador: Boolean = false) {
         context.dataStore.edit { preferences ->
             preferences[IS_LOGGED_IN] = true
             preferences[USER_ID] = userId
             preferences[USER_EMAIL] = email
             preferences[USER_NAME] = userName
+            preferences[IS_CREADOR] = isCreador
         }
     }
 
@@ -59,6 +66,7 @@ class SessionManager(private val context: Context) {
             preferences.remove(USER_ID)
             preferences.remove(USER_EMAIL)
             preferences.remove(USER_NAME)
+            preferences.remove(IS_CREADOR)
         }
     }
 
@@ -66,6 +74,13 @@ class SessionManager(private val context: Context) {
     suspend fun getCurrentUserId(): Int? {
         return context.dataStore.data.map { preferences ->
             preferences[USER_ID]
+        }.first()
+    }
+
+    // Obtiene si el usuario es creador de forma síncrona
+    suspend fun getIsCreador(): Boolean {
+        return context.dataStore.data.map { preferences ->
+            preferences[IS_CREADOR] ?: false
         }.first()
     }
 }

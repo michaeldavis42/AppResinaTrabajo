@@ -17,10 +17,13 @@ import com.example.appresina.data.UsuarioRepository
 import com.example.appresina.model.Producto
 import com.example.appresina.ui.screens.AddEditProductScreen
 import com.example.appresina.ui.screens.HomeScreen
+import com.example.appresina.ui.screens.CustomerHomeScreen
 import com.example.appresina.ui.screens.LoginScreen
 import com.example.appresina.ui.screens.ProductDetailScreen
+import com.example.appresina.ui.screens.CustomerProductDetailScreen
 import com.example.appresina.ui.screens.RegisterScreen
 import com.example.appresina.ui.screens.SettingsScreen
+import com.example.appresina.ui.screens.ProfileScreen
 import com.example.appresina.viewmodel.AuthViewModel
 import com.example.appresina.viewmodel.AuthViewModelFactory
 
@@ -29,13 +32,16 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    val isCreador by sessionManager.isCreador.collectAsState(initial = false)
+    
     val authViewModel: AuthViewModel = viewModel(
         factory = AuthViewModelFactory(
             AuthRepository(
                 UsuarioRepository(AppDatabase.getDatabase(context).usuarioDao()),
-                SessionManager(context)
+                sessionManager
             ),
-            SessionManager(context)
+            sessionManager
         )
     )
 
@@ -70,34 +76,63 @@ fun AppNavigation(
         }
 
         composable(Screen.Home.route) {
-            HomeScreen(
-                onNavigateToAddProduct = {
-                    navController.navigate(Screen.AddProduct.route)
-                },
-                onNavigateToProductDetail = { producto ->
-                    navController.navigate("${Screen.ProductDetail.route}/${producto.id}")
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Screen.Settings.route)
-                },
-                onLogout = {
-                    authViewModel.logout()
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
+            if (isCreador) {
+                // Pantalla para creadores
+                HomeScreen(
+                    onNavigateToAddProduct = {
+                        navController.navigate(Screen.AddProduct.route)
+                    },
+                    onNavigateToProductDetail = { producto ->
+                        navController.navigate("${Screen.ProductDetail.route}/${producto.id}")
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Screen.Settings.route)
+                    },
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            } else {
+                // Pantalla para clientes
+                CustomerHomeScreen(
+                    onNavigateToProductDetail = { producto ->
+                        navController.navigate("${Screen.CustomerProductDetail.route}/${producto.id}")
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Screen.Settings.route)
+                    },
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
 
         composable(Screen.AddProduct.route) {
-            AddEditProductScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onProductSaved = {
-                    navController.popBackStack()
+            // Solo los creadores pueden agregar productos
+            if (isCreador) {
+                AddEditProductScreen(
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onProductSaved = {
+                        navController.popBackStack()
+                    }
+                )
+            } else {
+                // Si un cliente intenta acceder, redirigir a home
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
-            )
+            }
         }
 
         composable(Screen.EditProduct.route) { backStackEntry ->
@@ -135,10 +170,42 @@ fun AppNavigation(
             )
         }
 
+        composable("${Screen.CustomerProductDetail.route}/{productoId}") { backStackEntry ->
+            val productoId = backStackEntry.arguments?.getString("productoId")?.toIntOrNull() ?: 0
+            CustomerProductDetailScreen(
+                productoId = productoId,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
+                },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Profile.route) {
+            ProfileScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -152,5 +219,7 @@ sealed class Screen(val route: String) {
     object AddProduct : Screen("add_product")
     object EditProduct : Screen("edit_product/{productoId}")
     object ProductDetail : Screen("product_detail")
+    object CustomerProductDetail : Screen("customer_product_detail")
     object Settings : Screen("settings")
+    object Profile : Screen("profile")
 }

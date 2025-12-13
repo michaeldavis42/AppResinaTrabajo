@@ -74,7 +74,7 @@ class AuthRepository(
                 return Result.failure(IllegalArgumentException("Email o contraseña incorrectos"))
             }
 
-            sessionManager.login(usuario.id, usuario.email, usuario.nombre)
+            sessionManager.login(usuario.id, usuario.email, usuario.nombre, usuario.esCreador)
 
             Result.success(usuario)
         } catch (e: Exception) {

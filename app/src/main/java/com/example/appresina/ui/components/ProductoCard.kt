@@ -36,7 +36,7 @@ fun ProductoCard(
     producto: Producto,
     onClick: () -> Unit,
     onEdit: (() -> Unit)? = null,
-    onDelete: () -> Unit,
+    onDelete: (() -> Unit)? = null,
     onFavoriteToggle: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -128,7 +128,7 @@ fun ProductoCard(
                             }
                         }
                         onEdit?.let { IconButton(onClick = it) { Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary) } }
-                        IconButton(onClick = onDelete) { Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error) }
+                        onDelete?.let { IconButton(onClick = it) { Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error) } }
                     }
                 }
                 
