@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.appresina.data.*
 import com.example.appresina.model.Producto
+import com.example.appresina.remote.RetrofitClient
 import com.example.appresina.ui.components.ImagePicker
 import com.example.appresina.ui.components.ValidationTextField
 import com.example.appresina.viewmodel.ProductoViewModel
@@ -40,16 +41,26 @@ fun AddEditProductScreen(
     onNavigateBack: () -> Unit,
     onProductSaved: () -> Unit,
     viewModel: ProductoViewModel = viewModel(
-        factory = ProductoViewModelFactory(
-            ProductoRepository(
-                AppDatabase.getDatabase(LocalContext.current).productoDao(),
-                ValoracionRepository(AppDatabase.getDatabase(LocalContext.current).valoracionDao(), AppDatabase.getDatabase(LocalContext.current).usuarioDao()),
-                FavoritoRepository(AppDatabase.getDatabase(LocalContext.current).favoritoDao(), AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao()),
-                EstadisticaProductoRepository(AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao())
-            ),
-            ValoracionRepository(AppDatabase.getDatabase(LocalContext.current).valoracionDao(), AppDatabase.getDatabase(LocalContext.current).usuarioDao()),
-            FavoritoRepository(AppDatabase.getDatabase(LocalContext.current).favoritoDao(), AppDatabase.getDatabase(LocalContext.current).estadisticaProductoDao())
-        )
+        factory = run {
+            val context = LocalContext.current
+            val db = AppDatabase.getDatabase(context)
+            val apiService = RetrofitClient.instance
+            val valoracionRepository = ValoracionRepository(db.valoracionDao(), db.usuarioDao())
+            val favoritoRepository = FavoritoRepository(db.favoritoDao(), db.estadisticaProductoDao())
+            val estadisticaRepository = EstadisticaProductoRepository(db.estadisticaProductoDao())
+            val productoRepository = ProductoRepository(
+                db.productoDao(),
+                valoracionRepository,
+                favoritoRepository,
+                estadisticaRepository,
+                apiService
+            )
+            ProductoViewModelFactory(
+                productoRepository,
+                valoracionRepository,
+                favoritoRepository
+            )
+        }
     )
 ) {
     val nombre by viewModel.nombre.collectAsState()

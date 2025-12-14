@@ -1,5 +1,6 @@
 package com.example.appresina.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.appresina.data.*
+import com.example.appresina.ui.components.ImagePicker
 import com.example.appresina.viewmodel.AuthViewModel
 import com.example.appresina.viewmodel.AuthViewModelFactory
 import com.example.appresina.viewmodel.UserProfileViewModel
@@ -35,16 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 fun ProfileScreen(
     onNavigateBack: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    authViewModel: AuthViewModel = viewModel(
-        factory = run {
-            val context = LocalContext.current
-            val db = AppDatabase.getDatabase(context)
-            val usuarioRepository = UsuarioRepository(db.usuarioDao())
-            val sessionManager = SessionManager(context)
-            val authRepository = AuthRepository(usuarioRepository, sessionManager)
-            AuthViewModelFactory(authRepository, sessionManager)
-        }
-    ),
     viewModel: UserProfileViewModel = viewModel(
         factory = run {
             val context = LocalContext.current
@@ -56,6 +48,9 @@ fun ProfileScreen(
         }
     )
 ) {
+    val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    val isCreador by sessionManager.isCreador.collectAsState(initial = false)
     val usuario by viewModel.usuario.collectAsState()
     val nombre by viewModel.nombre.collectAsState()
     val biografia by viewModel.biografia.collectAsState()
@@ -72,14 +67,6 @@ fun ProfileScreen(
     var nuevaContrasenaVisible by remember { mutableStateOf(false) }
     var confirmarContrasenaVisible by remember { mutableStateOf(false) }
     var showChangePassword by remember { mutableStateOf(false) }
-    val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
-
-    // Navegar a login si no está autenticado
-    LaunchedEffect(isAuthenticated) {
-        if (!isAuthenticated) {
-            onNavigateToLogin()
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -148,30 +135,51 @@ fun ProfileScreen(
 
             // Avatar
             Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (avatarUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = avatarUrl,
-                        contentDescription = "Avatar",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Avatar",
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (avatarUrl.isNotBlank()) {
+                        AsyncImage(
+                            model = Uri.parse(avatarUrl),
+                            contentDescription = "Avatar",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Avatar",
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+                if (isCreador) {
+                    Text(
+                        text = "Admin",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .align(Alignment.BottomCenter)
                     )
                 }
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ImagePicker(onImageSelected = { uri -> viewModel.actualizarAvatarUrl(uri?.toString() ?: "") })
 
             // Información del usuario
             if (usuario != null) {
@@ -212,7 +220,7 @@ fun ProfileScreen(
                 placeholder = { Text("Cuéntanos sobre ti...") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 24.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 leadingIcon = {
                     Icon(
@@ -222,25 +230,6 @@ fun ProfileScreen(
                 },
                 shape = RoundedCornerShape(12.dp),
                 maxLines = 4
-            )
-
-            // Campo Avatar URL
-            OutlinedTextField(
-                value = avatarUrl,
-                onValueChange = { viewModel.actualizarAvatarUrl(it) },
-                label = { Text("URL del Avatar") },
-                placeholder = { Text("https://...") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Image,
-                        contentDescription = "Avatar URL"
-                    )
-                },
-                shape = RoundedCornerShape(12.dp)
             )
 
             // Botón Actualizar Perfil
@@ -428,7 +417,7 @@ fun ProfileScreen(
             // Botón Cerrar Sesión
             OutlinedButton(
                 onClick = {
-                    authViewModel.logout()
+                    viewModel.logout()
                     onNavigateToLogin()
                 },
                 modifier = Modifier

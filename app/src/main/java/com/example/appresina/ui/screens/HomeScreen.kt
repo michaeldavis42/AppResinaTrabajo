@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import com.example.appresina.R
+import com.example.appresina.remote.RetrofitClient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +41,7 @@ fun HomeScreen(
         factory = run {
             val context = LocalContext.current
             val db = AppDatabase.getDatabase(context)
+            val apiService = RetrofitClient.instance
             val valoracionRepository = ValoracionRepository(
                 db.valoracionDao(),
                 db.usuarioDao()
@@ -53,7 +55,8 @@ fun HomeScreen(
                 db.productoDao(),
                 valoracionRepository,
                 favoritoRepository,
-                estadisticaRepository
+                estadisticaRepository,
+                apiService
             )
             ProductoViewModelFactory(
                 productoRepository,

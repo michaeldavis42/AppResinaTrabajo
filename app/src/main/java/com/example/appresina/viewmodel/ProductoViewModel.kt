@@ -78,6 +78,20 @@ open class ProductoViewModel(
 
     init {
         fetchProductos()
+        refreshProductosFromServer()
+    }
+
+    fun refreshProductosFromServer() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                productoRepository.refreshProductos()
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al refrescar productos: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     // --- Funciones para AddEditProductScreen ---

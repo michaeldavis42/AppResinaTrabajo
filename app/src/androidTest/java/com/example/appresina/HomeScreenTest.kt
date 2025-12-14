@@ -8,14 +8,15 @@ import com.example.appresina.data.FavoritoRepository
 import com.example.appresina.data.ProductoRepository
 import com.example.appresina.data.ValoracionRepository
 import com.example.appresina.model.Producto
-import com.example.appresina.ui.screens.ProductoScreen
+import com.example.appresina.ui.screens.HomeScreen
 import com.example.appresina.viewmodel.ProductoViewModel
+import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
 
-class ProductoScreenTest {
+class HomeScreenTest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
@@ -43,22 +44,27 @@ class ProductoScreenTest {
             )
         )
 
-        // Creamos mocks vacíos para los repositorios, ya que no los usaremos en este test
-        val mockProductoRepo = mockk<ProductoRepository>(relaxed = true)
+        val mockProductoRepo = mockk<ProductoRepository> {
+            every { obtenerProductos() } returns flowOf(fakeProductos)
+        }
         val mockValoracionRepo = mockk<ValoracionRepository>(relaxed = true)
         val mockFavoritoRepo = mockk<FavoritoRepository>(relaxed = true)
 
-        val fakeViewModel = object : ProductoViewModel(
+        val fakeViewModel = ProductoViewModel(
             mockProductoRepo, mockValoracionRepo, mockFavoritoRepo
-        ) {
-            override val productoList = MutableStateFlow(fakeProductos)
-        }
+        )
 
         composeTestRule.setContent {
-            ProductoScreen(viewModel = fakeViewModel)
+            HomeScreen(
+                onNavigateToAddProduct = {},
+                onNavigateToProductDetail = {},
+                onNavigateToSettings = {},
+                onLogout = {},
+                viewModel = fakeViewModel
+            )
         }
 
-        composeTestRule.onNodeWithText("Título: Producto 1").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Título: Producto 2").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Producto 1").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Producto 2").assertIsDisplayed()
     }
 }

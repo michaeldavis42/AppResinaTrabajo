@@ -1,5 +1,6 @@
 package com.example.appresina.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appresina.data.AuthRepository
@@ -51,7 +52,7 @@ class UserProfileViewModel(
         cargarUsuarioActual()
     }
 
-    private fun cargarUsuarioActual() {
+    fun cargarUsuarioActual() {
         viewModelScope.launch {
             _isLoading.value = true
             val currentUser = authRepository.getCurrentUser()
@@ -73,6 +74,10 @@ class UserProfileViewModel(
 
     fun actualizarAvatarUrl(avatarUrl: String) {
         _avatarUrl.value = avatarUrl
+    }
+
+    fun actualizarAvatarUri(uri: Uri?) {
+        _avatarUrl.value = uri?.toString() ?: ""
     }
 
     fun actualizarContrasenaActual(contrasena: String) {
@@ -137,6 +142,12 @@ class UserProfileViewModel(
                 _errorMessage.value = e.message
             }
             _isLoading.value = false
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
         }
     }
 

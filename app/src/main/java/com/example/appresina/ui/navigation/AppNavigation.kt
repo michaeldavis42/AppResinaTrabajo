@@ -33,7 +33,6 @@ fun AppNavigation(
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
-    val isCreador by sessionManager.isCreador.collectAsState(initial = false)
     
     val authViewModel: AuthViewModel = viewModel(
         factory = AuthViewModelFactory(
@@ -54,8 +53,13 @@ fun AppNavigation(
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
                 },
-                onLoginSuccess = {
+                onAdminLoginSuccess = {
                     navController.navigate(Screen.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onCustomerLoginSuccess = {
+                    navController.navigate(Screen.CustomerHome.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
@@ -76,63 +80,51 @@ fun AppNavigation(
         }
 
         composable(Screen.Home.route) {
-            if (isCreador) {
-                // Pantalla para creadores
-                HomeScreen(
-                    onNavigateToAddProduct = {
-                        navController.navigate(Screen.AddProduct.route)
-                    },
-                    onNavigateToProductDetail = { producto ->
-                        navController.navigate("${Screen.ProductDetail.route}/${producto.id}")
-                    },
-                    onNavigateToSettings = {
-                        navController.navigate(Screen.Settings.route)
-                    },
-                    onLogout = {
-                        authViewModel.logout()
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
+            HomeScreen(
+                onNavigateToAddProduct = {
+                    navController.navigate(Screen.AddProduct.route)
+                },
+                onNavigateToProductDetail = { producto ->
+                    navController.navigate("${Screen.ProductDetail.route}/${producto.id}")
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
-                )
-            } else {
-                // Pantalla para clientes
-                CustomerHomeScreen(
-                    onNavigateToProductDetail = { producto ->
-                        navController.navigate("${Screen.CustomerProductDetail.route}/${producto.id}")
-                    },
-                    onNavigateToSettings = {
-                        navController.navigate(Screen.Settings.route)
-                    },
-                    onLogout = {
-                        authViewModel.logout()
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                }
+            )
+        }
+
+        composable(Screen.CustomerHome.route) {
+            CustomerHomeScreen(
+                onNavigateToProductDetail = { producto ->
+                    navController.navigate("${Screen.CustomerProductDetail.route}/${producto.id}")
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
                     }
-                )
-            }
+                }
+            )
         }
 
         composable(Screen.AddProduct.route) {
-            // Solo los creadores pueden agregar productos
-            if (isCreador) {
-                AddEditProductScreen(
-                    onNavigateBack = {
-                        navController.popBackStack()
-                    },
-                    onProductSaved = {
-                        navController.popBackStack()
-                    }
-                )
-            } else {
-                // Si un cliente intenta acceder, redirigir a home
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
+            AddEditProductScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onProductSaved = {
+                    navController.popBackStack()
                 }
-            }
+            )
         }
 
         composable(Screen.EditProduct.route) { backStackEntry ->
@@ -216,6 +208,7 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
     object Home : Screen("home")
+    object CustomerHome : Screen("customer_home")
     object AddProduct : Screen("add_product")
     object EditProduct : Screen("edit_product/{productoId}")
     object ProductDetail : Screen("product_detail")

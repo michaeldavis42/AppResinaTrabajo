@@ -35,7 +35,8 @@ import com.example.appresina.R
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit,
+    onAdminLoginSuccess: () -> Unit,
+    onCustomerLoginSuccess: () -> Unit,
     viewModel: AuthViewModel = viewModel(
         factory = run {
             val context = LocalContext.current
@@ -58,7 +59,11 @@ fun LoginScreen(
     // Navegar a home cuando se autentique
     LaunchedEffect(isAuthenticated) {
         if (isAuthenticated) {
-            onLoginSuccess()
+            if (email.endsWith("@duocuc.cl")) {
+                onAdminLoginSuccess()
+            } else {
+                onCustomerLoginSuccess()
+            }
         }
     }
 
@@ -224,10 +229,9 @@ fun LoginScreen(
                 Text(
                     text = "¿No tienes cuenta? Regístrate",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
     }
 }
-

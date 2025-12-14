@@ -31,4 +31,13 @@ interface ProductoDao {
 
     @Query("DELETE FROM productos")
     suspend fun eliminarTodosLosProductos()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertarProductos(productos: List<ProductoEntity>)
+
+    @Transaction
+    suspend fun eliminarYReemplazar(productos: List<ProductoEntity>) {
+        eliminarTodosLosProductos()
+        insertarProductos(productos)
+    }
 }
