@@ -28,7 +28,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.appresina.data.*
 import com.example.appresina.model.Producto
-import com.example.appresina.remote.RetrofitClient
 import com.example.appresina.ui.components.CommentList
 import com.example.appresina.ui.components.RatingBar
 import com.example.appresina.ui.components.RatingDisplay
@@ -48,7 +47,6 @@ fun ProductDetailScreen(
         factory = run {
             val context = LocalContext.current
             val db = AppDatabase.getDatabase(context)
-            val apiService = RetrofitClient.instance
             val valoracionRepository = ValoracionRepository(
                 db.valoracionDao(),
                 db.usuarioDao()
@@ -62,8 +60,7 @@ fun ProductDetailScreen(
                 db.productoDao(),
                 valoracionRepository,
                 favoritoRepository,
-                estadisticaRepository,
-                apiService
+                estadisticaRepository
             )
             ProductoViewModelFactory(
                 productoRepository,
@@ -104,8 +101,7 @@ fun ProductDetailScreen(
                 db.productoDao(),
                 valoracionRepository,
                 favoritoRepository,
-                estadisticaRepository,
-                RetrofitClient.instance
+                estadisticaRepository
             )
             val productoObtenido = productoRepository.obtenerProductoPorId(productoId)
             productoObtenido?.let {

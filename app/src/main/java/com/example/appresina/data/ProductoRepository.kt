@@ -1,7 +1,6 @@
 package com.example.appresina.data
 
 import com.example.appresina.model.Producto
-import com.example.appresina.remote.ApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -10,7 +9,6 @@ class ProductoRepository(
     private val valoracionRepository: ValoracionRepository,
     private val favoritoRepository: FavoritoRepository,
     private val estadisticaRepository: EstadisticaProductoRepository,
-    private val apiService: ApiService,
     private val usuarioActualId: Int = 1
 ) {
 
@@ -19,15 +17,6 @@ class ProductoRepository(
             entities.map { entity ->
                 enriquecerProducto(entity.toProducto())
             }
-        }
-    }
-
-    suspend fun refreshProductos() {
-        try {
-            val productosDesdeApi = apiService.getProductos()
-            productoDao.eliminarYReemplazar(productosDesdeApi.map { it.toEntity() })
-        } catch (e: Exception) {
-            // Manejar errores de red aquí
         }
     }
 

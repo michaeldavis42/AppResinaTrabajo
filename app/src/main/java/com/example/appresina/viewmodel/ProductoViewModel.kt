@@ -36,7 +36,6 @@ open class ProductoViewModel(
     private val _descripcion = MutableStateFlow("")
     val descripcion: StateFlow<String> = _descripcion.asStateFlow()
 
-    // --- NUEVO: Estado para la URI de la imagen seleccionada ---
     private val _imagenUri = MutableStateFlow<Uri?>(null)
     val imagenUri: StateFlow<Uri?> = _imagenUri.asStateFlow()
 
@@ -48,7 +47,6 @@ open class ProductoViewModel(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     // --- Estado para HomeScreen ---
-    protected val _productos = MutableStateFlow<List<Producto>>(emptyList())
     private val _busqueda = MutableStateFlow("")
     private val _filtroActual = MutableStateFlow(TipoFiltro.TODOS)
     val filtroActual: StateFlow<TipoFiltro> = _filtroActual.asStateFlow()
@@ -56,43 +54,15 @@ open class ProductoViewModel(
     private val _tipoFiltro = MutableStateFlow<String?>("Todos")
     val tipoFiltro: StateFlow<String?> = _tipoFiltro.asStateFlow()
 
-    val listaProductos: StateFlow<List<Producto>> = combine(
-        _productos, _busqueda, _filtroActual, _tipoFiltro
-    ) { productos, busqueda, filtro, tipoFiltroValue ->
-        val filtradosPorBusqueda = if (busqueda.isBlank()) {
-            productos
-        } else {
-            productos.filter { it.nombre.contains(busqueda, ignoreCase = true) }
-        }
-
-        when (filtro) {
-            TipoFiltro.TODOS -> filtradosPorBusqueda
-            TipoFiltro.TIPO_RESINA -> if (tipoFiltroValue != "Todos") filtradosPorBusqueda.filter { it.tipo == tipoFiltroValue } else filtradosPorBusqueda
-            TipoFiltro.MAS_RECIENTES -> filtradosPorBusqueda.sortedByDescending { it.fechaCreacion }
-            TipoFiltro.MEJOR_VALORADOS -> filtradosPorBusqueda.sortedByDescending { it.valoracionPromedio }
-            else -> filtradosPorBusqueda
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    
-    open val productoList: StateFlow<List<Producto>> = _productos.asStateFlow()
-
-    init {
-        fetchProductos()
-        refreshProductosFromServer()
-    }
-
-    fun refreshProductosFromServer() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                productoRepository.refreshProductos()
-            } catch (e: Exception) {
-                _errorMessage.value = "Error al refrescar productos: ${e.message}"
-            } finally {
-                _isLoading.value = false
+    val listaProductos: StateFlow<List<Producto>> = productoRepository.obtenerProductos()
+        .combine(_busqueda) { productos, busqueda ->
+            if (busqueda.isBlank()) {
+                productos
+            } else {
+                productos.filter { it.nombre.contains(busqueda, ignoreCase = true) }
             }
         }
-    }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // --- Funciones para AddEditProductScreen ---
     fun actualizarNombre(nuevoNombre: String) { _nombre.value = nuevoNombre }
@@ -100,7 +70,6 @@ open class ProductoViewModel(
     fun actualizarPrecio(nuevoPrecio: String) { _precio.value = nuevoPrecio }
     fun actualizarCantidad(nuevaCantidad: String) { _cantidad.value = nuevaCantidad }
     fun actualizarDescripcion(nuevaDescripcion: String) { _descripcion.value = nuevaDescripcion }
-    // --- NUEVO: Método para actualizar la URI de la imagen ---
     fun actualizarImagenUri(uri: Uri?) { _imagenUri.value = uri }
 
     suspend fun agregarProducto() {
@@ -114,7 +83,6 @@ open class ProductoViewModel(
                 cantidad = cantidad.value.toIntOrNull() ?: 0,
                 descripcion = descripcion.value,
                 usuarioId = 1,
-                // --- NUEVO: Guardamos la URI como String ---
                 imagenUrl = _imagenUri.value?.toString() ?: ""
             )
             productoRepository.insertarProducto(nuevoProducto)
@@ -129,7 +97,6 @@ open class ProductoViewModel(
         _isLoading.value = true
         try {
             val productoActualizado = producto.copy(
-                // --- NUEVO: Actualizamos también la imagen ---
                 imagenUrl = _imagenUri.value?.toString() ?: producto.imagenUrl
             )
             productoRepository.actualizarProducto(productoActualizado)
@@ -138,20 +105,6 @@ open class ProductoViewModel(
         } finally {
             _isLoading.value = false
         }
-    }
-
-    open fun fetchProductos() {
-        productoRepository.obtenerProductos()
-            .onStart { _isLoading.value = true }
-            .onEach { lista ->
-                _productos.value = lista
-                _isLoading.value = false
-            }
-            .catch { e ->
-                _errorMessage.value = "Error al cargar productos: ${e.message}"
-                _isLoading.value = false
-            }
-            .launchIn(viewModelScope)
     }
 
     fun buscarProductos(query: String) { _busqueda.value = query }

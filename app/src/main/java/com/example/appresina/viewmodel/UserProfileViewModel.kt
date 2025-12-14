@@ -10,6 +10,8 @@ import com.example.appresina.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class UserProfileViewModel(
@@ -49,7 +51,11 @@ class UserProfileViewModel(
     val confirmarNuevaContrasena: StateFlow<String> = _confirmarNuevaContrasena.asStateFlow()
 
     init {
-        cargarUsuarioActual()
+        sessionManager.isLoggedIn.onEach { isLoggedIn ->
+            if (isLoggedIn) {
+                cargarUsuarioActual()
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun cargarUsuarioActual() {
@@ -126,14 +132,11 @@ class UserProfileViewModel(
             _errorMessage.value = null
             _successMessage.value = null
             try {
-                // Esta es una implementación simplificada. En una app real, deberías
-                // verificar la contraseña actual en el backend.
                 val currentUser = authRepository.getCurrentUser()
                 if (currentUser != null) {
                     val updatedUser = currentUser.copy(password_hash = authRepository.hashPassword(_nuevaContrasena.value))
                     usuarioRepository.actualizarUsuario(updatedUser)
                     _successMessage.value = "Contraseña cambiada con éxito"
-                    // Limpiar campos de contraseña
                     _contrasenaActual.value = ""
                     _nuevaContrasena.value = ""
                     _confirmarNuevaContrasena.value = ""

@@ -7,7 +7,8 @@ import com.example.appresina.data.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -38,7 +39,6 @@ class AuthViewModel(
     private val _confirmarContrasenaRegistro = MutableStateFlow("")
     val confirmarContrasenaRegistro: StateFlow<String> = _confirmarContrasenaRegistro.asStateFlow()
 
-    // --- CAMBIO: Fecha de nacimiento ahora es un String ---
     private val _fechaNacimiento = MutableStateFlow("")
     val fechaNacimiento: StateFlow<String> = _fechaNacimiento.asStateFlow()
 
@@ -56,9 +56,9 @@ class AuthViewModel(
     val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _isAuthenticated.value = sessionManager.isLoggedIn.first()
-        }
+        sessionManager.isLoggedIn
+            .onEach { _isAuthenticated.value = it }
+            .launchIn(viewModelScope)
     }
 
     fun actualizarEmailLogin(email: String) { _emailLogin.value = email }
@@ -67,7 +67,6 @@ class AuthViewModel(
     fun actualizarEmailRegistro(email: String) { _emailRegistro.value = email }
     fun actualizarContrasenaRegistro(contrasena: String) { _contrasenaRegistro.value = contrasena }
     fun actualizarConfirmarContrasenaRegistro(contrasena: String) { _confirmarContrasenaRegistro.value = contrasena }
-    // --- CAMBIO: El método ahora acepta un String ---
     fun actualizarFechaNacimiento(fecha: String) { _fechaNacimiento.value = fecha }
 
     fun login() {
@@ -75,7 +74,7 @@ class AuthViewModel(
             _isLoading.value = true
             _errorMessage.value = null
             val result = authRepository.login(_emailLogin.value, _contrasenaLogin.value)
-            result.onSuccess { _isAuthenticated.value = true }.onFailure { _errorMessage.value = it.message }
+            result.onFailure { _errorMessage.value = it.message }
             _isLoading.value = false
         }
     }
@@ -105,10 +104,9 @@ class AuthViewModel(
     }
 
     fun onRegistrationHandled() { _registrationSuccess.value = false }
-    fun logout() { viewModelScope.launch { authRepository.logout(); _isAuthenticated.value = false } }
+    fun logout() { viewModelScope.launch { authRepository.logout() } }
     fun limpiarError() { _errorMessage.value = null }
 
-    // --- CAMBIO: La validación ahora recibe un Long ---
     private fun esMayorDeEdad(fechaNacimiento: Long): Boolean {
         val calNacimiento = Calendar.getInstance().apply { timeInMillis = fechaNacimiento }
         val calHoy = Calendar.getInstance()
@@ -119,7 +117,6 @@ class AuthViewModel(
         return edad >= 18
     }
 
-    // --- NUEVO: Helper para convertir String a Long ---
     private fun stringToDateLong(dateStr: String): Long? {
         return try {
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
